@@ -118,9 +118,8 @@ const DashboardLayout = () => {
   };
 
   const displayName =
-    profile?.name || user?.name || user?.email || "User";
-  const initials = getInitials(displayName);
-
+    profile?.name || user?.name || user?.email?.split("@")[0] || "User";
+  const initials = getInitials(displayName);    
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-slate-800">
       <div className="flex min-h-screen">
