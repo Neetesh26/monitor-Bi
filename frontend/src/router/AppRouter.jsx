@@ -9,6 +9,9 @@ import TimeTrackingPage from "../pages/attendance/TimeTrackingPage";
 import ProjectDetailPage from "../pages/attendance/ProjectDetailPage";
 import CreateTaskPage from "../pages/attendance/CreateTaskPage";
 import ProtectedRoute from "./ProtectedRoute";
+import TimeAttendence from "../pages/time&attendence/TimeAttendence";
+import TeamsPage from "../pages/teams/TeamsPage";
+import ScreenshotsPage from "../pages/screenshort/ScreenshotsPage";
 
 const AppRouter = () => {
   const isLoggedIn = Boolean(localStorage.getItem("isLoggedIn"));
@@ -39,11 +42,11 @@ const AppRouter = () => {
         },
         {
           path: "/time-attendance",
-          element: <div className="p-8">Time & Attendance Page</div>,
+          element: <TimeAttendence />,
         },
         {
           path: "/teams",
-          element: <div className="p-8">Teams Page</div>,
+          element: <div className="p-8"><TeamsPage />  </div>,
         },
         {
           path: "/projects",
@@ -51,20 +54,13 @@ const AppRouter = () => {
         },
         {
           path: "/screenshots",
-          element: <div className="p-8">Screenshots Page</div>,
+          element: <div className="p-8"><ScreenshotsPage />  </div>,
         },
         {
           path: "/reports",
           element: <div className="p-8">Reports Page</div>,
         },
-        {
-          path: "/messages",
-          element: <div className="p-8">Messages Page</div>,
-        },
-        {
-          path: "/settings",
-          element: <div className="p-8">Settings Page</div>,
-        },
+       
       ],
     },
     {

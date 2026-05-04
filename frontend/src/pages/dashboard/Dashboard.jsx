@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   CalendarDays,
   Circle,
@@ -23,16 +23,54 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { axiosInstance } from "../../config/axiosInstance"; 
 
-const statCards = [
-  { title: "Work Time", value: "04:12 h", change: "+87%", icon: CalendarDays, color: "text-blue-600" },
-  { title: "Active Time", value: "06:33 h", change: "+65%", icon: Monitor, color: "text-sky-600" },
-  { title: "Idle Time", value: "01:42 h", change: "-77%", icon: Clock3, color: "text-red-500" },
-  { title: "Manual Time", value: "01:55 h", change: "+80%", icon: SquareChartGantt, color: "text-violet-600" },
-  { title: "Productive Time", value: "10:42 h", change: "+59%", icon: LayoutGrid, color: "text-emerald-600" },
-  { title: "Unproductive Time", value: "06:44 h", change: "+55%", icon: LineChartIcon, color: "text-amber-600" },
-  { title: "Neutral Time", value: "04 :54 h", change: "-60%", icon: Circle, color: "text-slate-500" },
-  { title: "Utilization", value: "16.32%", change: "+89%", icon: Users, color: "text-indigo-600" },
+const getAgentIdFromToken = () => {
+  try {
+    const authRaw = localStorage.getItem("auth");
+    if (!authRaw) return null;
+
+    const authObj = JSON.parse(authRaw);
+    const token = authObj.token;
+    if (!token) return null;
+
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const payloadBase64 = parts[1];
+    const payloadJson = atob(payloadBase64.replace(/-/g, "+").replace(/_/g, "/"));
+    const payload = JSON.parse(payloadJson);
+
+    // in your token, this is the id:
+    // "userId": "9994163c-333b-4056-983f-002960afb232"
+    return payload.userId || null;
+  } catch (e) {
+    console.error("Failed to decode auth token", e);
+    return null;
+  }
+};
+
+// ===== helper: convert seconds -> "HH:MM h" =====
+const formatSecondsToHours = (seconds) => {
+  if (!seconds || seconds <= 0) return "00:00 h"; 
+  const totalMinutes = Math.floor(seconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(minutes).padStart(2, "0");
+  return `${hh}:${mm} h`;
+};
+
+// config for stat cards (UI only)
+const statCardsConfig = [
+  { key: "workTime", title: "Work Time", change: "+87%", icon: CalendarDays, color: "text-blue-600" },
+  { key: "activeTime", title: "Active Time", change: "+65%", icon: Monitor, color: "text-sky-600" },
+  { key: "idleTime", title: "Idle Time", change: "-77%", icon: Clock3, color: "text-red-500" },
+  { key: "manualTime", title: "Manual Time", change: "+80%", icon: SquareChartGantt, color: "text-violet-600" },
+  { key: "productiveTime", title: "Productive Time", change: "+59%", icon: LayoutGrid, color: "text-emerald-600" },
+  { key: "unproductiveTime", title: "Unproductive Time", change: "+55%", icon: LineChartIcon, color: "text-amber-600" },
+  { key: "neutralTime", title: "Neutral Time", change: "-60%", icon: Circle, color: "text-slate-500" },
+  { key: "utilization", title: "Utilization", change: "+89%", icon: Users, color: "text-indigo-600" },
 ];
 
 const categories = ["Services", "Advertising Tools", "Arts & Entertainment", "Communication", "AI Tools", "Shopping"];
@@ -69,12 +107,119 @@ const Dashboard = () => {
   const [todayOnly, setTodayOnly] = useState(true);
   const [activeTab, setActiveTab] = useState("Activities");
 
+  const [showFilter, setShowFilter] = useState(false);
+  const [rangeFilter, setRangeFilter] = useState("weekly"); // daily | yesterday | weekly | trend | custom
+
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [statsError, setStatsError] = useState(null);
+
+  const [statValues, setStatValues] = useState({
+    workTimeSeconds: 0,
+    activeTimeSeconds: 0,
+    idleTimeSeconds: 0,
+    manualTimeSeconds: 0,
+    productiveTimeSeconds: 0,
+    unproductiveTimeSeconds: 0,
+    neutralTimeSeconds: 0,
+    utilizationPercent: 0,
+  });
+
   const filteredApps = useMemo(() => {
     if (!query.trim()) return apps;
     return apps.filter(([name]) => name.toLowerCase().includes(query.toLowerCase()));
   }, [query]);
 
   const chartData = todayOnly ? activityData.slice(-4) : activityData;
+
+  // build axios path from range + agentId
+  const getPathForRange = (range, agentId) => {
+    switch (range) {
+      case "daily":
+        return `/productivity/${agentId}/daily`;
+      case "yesterday":
+        return `/productivity/${agentId}/yesterday`;
+      case "weekly":
+        return `/productivity/${agentId}/weekly`;
+      case "trend":
+        return `/productivity/${agentId}/trend`;
+      case "custom":
+        return `/productivity/${agentId}/custom`;
+      default:
+        return `/productivity/${agentId}/weekly`;
+    }
+  };
+
+  // fetch stats whenever rangeFilter changes
+  useEffect(() => {
+    const agentId = getAgentIdFromToken();
+    if (!agentId) {
+      setStatsError("No agentId (userId) found in token");
+      return;
+    }
+
+    const fetchStats = async () => {
+      try {
+        setLoadingStats(true);
+        setStatsError(null);
+
+        const path = getPathForRange(rangeFilter, agentId);
+        const res = await axiosInstance.get(path); 
+        const json = res.data;
+
+        if (!json || !json.data) {
+          throw new Error("No data in response");
+        }
+
+        const d = json.data;
+
+        const workSeconds = (d.productiveAppTime || 0) + (d.productiveWebTime || 0);
+        const activeSeconds = workSeconds;
+        const idleSeconds = d.idleTime || 0;
+        const productivityScore = d.productivityScore || 0;
+
+        setStatValues({
+          workTimeSeconds: workSeconds,
+          activeTimeSeconds: activeSeconds,
+          idleTimeSeconds: idleSeconds,
+          manualTimeSeconds: 0,
+          productiveTimeSeconds: workSeconds,
+          unproductiveTimeSeconds: 0,
+          neutralTimeSeconds: 0,
+          utilizationPercent: productivityScore * 100,
+        });
+      } catch (err) {
+        console.error(err);
+        setStatsError("Failed to load status");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [rangeFilter]);
+
+  const getCardValue = (key) => {
+    switch (key) {
+      case "workTime":
+        return formatSecondsToHours(statValues.workTimeSeconds);
+      case "activeTime":
+        return formatSecondsToHours(statValues.activeTimeSeconds);
+      case "idleTime":
+        return formatSecondsToHours(statValues.idleTimeSeconds);
+      case "manualTime":
+        return formatSecondsToHours(statValues.manualTimeSeconds);
+      case "productiveTime":
+        return formatSecondsToHours(statValues.productiveTimeSeconds);
+      case "unproductiveTime":
+        return formatSecondsToHours(statValues.unproductiveTimeSeconds);
+      case "neutralTime":
+        return formatSecondsToHours(statValues.neutralTimeSeconds);
+      case "utilization":
+        return `${statValues.utilizationPercent.toFixed(2)}%`;
+      default:
+        return "00:00 h";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -94,19 +239,94 @@ const Dashboard = () => {
             <CalendarDays size={16} />
             {todayOnly ? "Today" : "All Dates"}
           </button>
-          <button className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm flex items-center gap-2 hover:bg-slate-50">
-            <Filter size={16} /> Filter
-          </button>
+
+          <div className="relative">
+            <button
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm flex items-center gap-2 hover:bg-slate-50"
+              onClick={() => setShowFilter((prev) => !prev)}
+            >
+              <Filter size={16} /> Filter ({rangeFilter})
+            </button>
+
+            {showFilter && (
+              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-slate-200 bg-white shadow-md z-10 text-sm">
+                <button
+                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
+                    rangeFilter === "daily" ? "text-blue-600 font-medium" : "text-slate-700"
+                  }`}
+                  onClick={() => {
+                    setRangeFilter("daily");
+                    setShowFilter(false);
+                  }}
+                >
+                  Daily
+                </button>
+                <button
+                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
+                    rangeFilter === "yesterday" ? "text-blue-600 font-medium" : "text-slate-700"
+                  }`}
+                  onClick={() => {
+                    setRangeFilter("yesterday");
+                    setShowFilter(false);
+                  }}
+                >
+                  Yesterday
+                </button>
+                <button
+                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
+                    rangeFilter === "weekly" ? "text-blue-600 font-medium" : "text-slate-700"
+                  }`}
+                  onClick={() => {
+                    setRangeFilter("weekly");
+                    setShowFilter(false);
+                  }}
+                >
+                  Weekly
+                </button>
+                <button
+                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
+                    rangeFilter === "trend" ? "text-blue-600 font-medium" : "text-slate-700"
+                  }`}
+                  onClick={() => {
+                    setRangeFilter("trend");
+                    setShowFilter(false);
+                  }}
+                >
+                  Trend
+                </button>
+                <button
+                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
+                    rangeFilter === "custom" ? "text-blue-600 font-medium" : "text-slate-700"
+                  }`}
+                  onClick={() => {
+                    setRangeFilter("custom");
+                    setShowFilter(false);
+                  }}
+                >
+                  Custom
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      {loadingStats && (
+        <div className="text-xs text-slate-400 px-1">Loading productivity data…</div>
+      )}
+      {statsError && (
+        <div className="text-xs text-red-500 px-1">{statsError}</div>
+      )}
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {statCards.map(({ title, value, change, icon: Icon, color }) => (
+        {statCardsConfig.map(({ key, title, change, icon: Icon, color }) => (
           <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-slate-500">{title}</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
+                <p className="mt-2 text-2xl font-semibold text-blue-600">
+                  {getCardValue(key)}
+                </p>
               </div>
               <Icon size={18} className={color} />
             </div>
@@ -178,7 +398,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl  border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="text-base font-semibold">Category Breakdown</h3>
           <div className="mt-4 h-72">
             <ResponsiveContainer width="100%" height="100%">
