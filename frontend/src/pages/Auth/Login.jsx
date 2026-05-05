@@ -14,6 +14,20 @@ const getErrorMessage = (err) => {
 };
 
 const Login = () => {
+
+  localStorage.setItem(
+  "auth",
+  JSON.stringify({
+    user: {
+      email: "demo@gmail.com",
+      name: "Demo User",
+      role: "Admin",
+      userId: "123",
+      organizationId: "org1",
+    },
+    token: "demo-token-123",
+  })
+);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.users);
@@ -90,7 +104,7 @@ const Login = () => {
 
       <div className="w-full max-w-md rounded-[20px] border border-slate-200 bg-white p-6 shadow-xl">
         <div className="mb-6 text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">BI WORK MONITOR</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-400"> BI WORK MONITOR</p>
           <h1 className="mt-3 text-2xl font-semibold text-slate-900">Welcome back!</h1>
           <p className="mt-1 text-sm text-slate-500">Please login to continue to your account.</p>
         </div>
