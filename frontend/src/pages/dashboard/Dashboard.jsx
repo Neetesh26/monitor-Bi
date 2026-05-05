@@ -1,15 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
-import {
-  CalendarDays,
-  Circle,
-  Clock3,
-  Filter,
-  LayoutGrid,
-  LineChart as LineChartIcon,
-  Monitor,
-  SquareChartGantt,
-  Users,
-} from "lucide-react";
+import { useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -18,461 +7,267 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   PieChart,
   Pie,
   Cell,
 } from "recharts";
-import { axiosInstance } from "../../config/axiosInstance"; 
 
-const getAgentIdFromToken = () => {
-  try {
-    const authRaw = localStorage.getItem("auth");
-    if (!authRaw) return null;
+const CalendarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+const FilterIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+  </svg>
+);
+const ArrowUpIcon = () => (
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+  </svg>
+);
 
-    const authObj = JSON.parse(authRaw);
-    const token = authObj.token;
-    if (!token) return null;
-
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const payloadBase64 = parts[1];
-    const payloadJson = atob(payloadBase64.replace(/-/g, "+").replace(/_/g, "/"));
-    const payload = JSON.parse(payloadJson);
-
-    // in your token, this is the id:
-    // "userId": "9994163c-333b-4056-983f-002960afb232"
-    return payload.userId || null;
-  } catch (e) {
-    console.error("Failed to decode auth token", e);
-    return null;
-  }
+const icons = {
+  workTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  activeTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  idleTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  manualTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>,
+  productiveTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  unproductiveTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
+  neutralTime: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  utilization: (c) => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
 };
 
-// ===== helper: convert seconds -> "HH:MM h" =====
-const formatSecondsToHours = (seconds) => {
-  if (!seconds || seconds <= 0) return "00:00 h"; 
-  const totalMinutes = Math.floor(seconds / 60);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  const hh = String(hours).padStart(2, "0");
-  const mm = String(minutes).padStart(2, "0");
-  return `${hh}:${mm} h`;
-};
-
-// config for stat cards (UI only)
-const statCardsConfig = [
-  { key: "workTime", title: "Work Time", change: "+87%", icon: CalendarDays, color: "text-blue-600" },
-  { key: "activeTime", title: "Active Time", change: "+65%", icon: Monitor, color: "text-sky-600" },
-  { key: "idleTime", title: "Idle Time", change: "-77%", icon: Clock3, color: "text-red-500" },
-  { key: "manualTime", title: "Manual Time", change: "+80%", icon: SquareChartGantt, color: "text-violet-600" },
-  { key: "productiveTime", title: "Productive Time", change: "+59%", icon: LayoutGrid, color: "text-emerald-600" },
-  { key: "unproductiveTime", title: "Unproductive Time", change: "+55%", icon: LineChartIcon, color: "text-amber-600" },
-  { key: "neutralTime", title: "Neutral Time", change: "-60%", icon: Circle, color: "text-slate-500" },
-  { key: "utilization", title: "Utilization", change: "+89%", icon: Users, color: "text-indigo-600" },
-];
-
-const categories = ["Services", "Advertising Tools", "Arts & Entertainment", "Communication", "AI Tools", "Shopping"];
-
-const apps = [
-  ["Figma", "Productive"],
-  ["app.insightful.io", "Productive"],
-  ["Slack", "Neutral"],
-  ["insightly.io", "Unproductive"],
-  ["chatgpt.com", "Productive"],
+const statCards = [
+  { key: "workTime",         label: "Work Time",          value: "01:42 h", change: "+99%", color: "#3b82f6" },
+  { key: "activeTime",       label: "Active Time",        value: "01:42 h", change: "+99%", color: "#0ea5e9" },
+  { key: "idleTime",         label: "Idle Time",          value: "01:42 h", change: "+99%", color: "#ef4444" },
+  { key: "manualTime",       label: "Manual Time",        value: "01:42 h", change: "+99%", color: "#8b5cf6" },
+  { key: "productiveTime",   label: "Productive Time",    value: "01:42 h", change: "+99%", color: "#10b981" },
+  { key: "unproductiveTime", label: "Unproductive Time",  value: "01:42 h", change: "+99%", color: "#f59e0b" },
+  { key: "neutralTime",      label: "Neutral Time",       value: "01:42 h", change: "+99%", color: "#64748b" },
+  { key: "utilization",      label: "Utilization",        value: "16.32%",  change: "+99%", color: "#6366f1" },
 ];
 
 const activityData = [
-  { day: "13 Mar", active: 40, break: 10, manual: 5 },
-  { day: "14 Mar", active: 42, break: 8, manual: 4 },
-  { day: "15 Mar", active: 39, break: 11, manual: 6 },
-  { day: "16 Mar", active: 44, break: 7, manual: 3 },
-  { day: "17 Mar", active: 41, break: 9, manual: 5 },
-  { day: "18 Mar", active: 38, break: 12, manual: 4 },
-  { day: "19 Mar", active: 45, break: 6, manual: 2 },
+  { day: "13 Mar", active: 50, breakT: 8,  manual: 4 },
+  { day: "13 Mar", active: 48, breakT: 10, manual: 5 },
+  { day: "13 Mar", active: 50, breakT: 8,  manual: 4 },
+  { day: "13 Mar", active: 50, breakT: 7,  manual: 3 },
+  { day: "13 Mar", active: 50, breakT: 8,  manual: 5 },
+  { day: "13 Mar", active: 49, breakT: 9,  manual: 4 },
+  { day: "16 Mar", active: 51, breakT: 6,  manual: 3 },
 ];
 
 const donutData = [
-  { name: "Services", value: 32, color: "#f99" },
-  { name: "Advertising Tools", value: 18, color: "#8eabd7" },
-  { name: "Arts & Entertainment", value: 14, color: "#ddc069" },
-  { name: "Communication", value: 12, color: "#88d2ae" },
-  { name: "AI Tools", value: 12, color: "#aa85c8" },
-  { name: "Shopping", value: 12, color: "#cd8989" },
+  { name: "Services",             value: 32, color: "#fca5a5" },
+  { name: "Advertising Tools",    value: 18, color: "#93c5fd" },
+  { name: "Arts & Entertainment", value: 14, color: "#fde68a" },
+  { name: "Communication",        value: 12, color: "#6ee7b7" },
+  { name: "AI Tools",             value: 12, color: "#c4b5fd" },
+  { name: "Shopping",             value: 12, color: "#fda4af" },
 ];
 
-const Dashboard = () => {
-  const [query, setQuery] = useState("");
-  const [todayOnly, setTodayOnly] = useState(true);
-  const [activeTab, setActiveTab] = useState("Activities");
+const categories = ["Services","Advertising Tools","Arts & Entertainment","Communication","AI Tools","Shopping"];
 
-  const [showFilter, setShowFilter] = useState(false);
-  const [rangeFilter, setRangeFilter] = useState("weekly"); // daily | yesterday | weekly | trend | custom
+const apps = [
+  { name: "Figma",             status: "Productive"   },
+  { name: "app.insightful.io", status: "Productive"   },
+  { name: "Slack",             status: "Neutral"      },
+  { name: "insightly.io",      status: "Unproductive" },
+  { name: "chatgpt.com",       status: "Productive"   },
+];
 
-  const [loadingStats, setLoadingStats] = useState(false);
-  const [statsError, setStatsError] = useState(null);
+const statusStyle = {
+  Productive:   { bg: "#f0fdf4", color: "#16a34a" },
+  Neutral:      { bg: "#fffbeb", color: "#d97706" },
+  Unproductive: { bg: "#fff1f2", color: "#e11d48" },
+};
 
-  const [statValues, setStatValues] = useState({
-    workTimeSeconds: 0,
-    activeTimeSeconds: 0,
-    idleTimeSeconds: 0,
-    manualTimeSeconds: 0,
-    productiveTimeSeconds: 0,
-    unproductiveTimeSeconds: 0,
-    neutralTimeSeconds: 0,
-    utilizationPercent: 0,
-  });
+const card = {
+  background: "#fff",
+  border: "1px solid #e2e8f0",
+  borderRadius: 18,
+  padding: 20,
+};
 
-  const filteredApps = useMemo(() => {
-    if (!query.trim()) return apps;
-    return apps.filter(([name]) => name.toLowerCase().includes(query.toLowerCase()));
-  }, [query]);
+export default function Dashboard() {
+  const [activeTab, setActiveTab]     = useState("Activities");
+  const [todayOnly, setTodayOnly]     = useState(true);
+  const [showFilter, setShowFilter]   = useState(false);
+  const [rangeFilter, setRangeFilter] = useState("weekly");
 
   const chartData = todayOnly ? activityData.slice(-4) : activityData;
-
-  // build axios path from range + agentId
-  const getPathForRange = (range, agentId) => {
-    switch (range) {
-      case "daily":
-        return `/productivity/${agentId}/daily`;
-      case "yesterday":
-        return `/productivity/${agentId}/yesterday`;
-      case "weekly":
-        return `/productivity/${agentId}/weekly`;
-      case "trend":
-        return `/productivity/${agentId}/trend`;
-      case "custom":
-        return `/productivity/${agentId}/custom`;
-      default:
-        return `/productivity/${agentId}/weekly`;
-    }
-  };
-
-  // fetch stats whenever rangeFilter changes
-  useEffect(() => {
-    const agentId = getAgentIdFromToken();
-    if (!agentId) {
-      setStatsError("No agentId (userId) found in token");
-      return;
-    }
-
-    const fetchStats = async () => {
-      try {
-        setLoadingStats(true);
-        setStatsError(null);
-
-        const path = getPathForRange(rangeFilter, agentId);
-        const res = await axiosInstance.get(path); 
-        const json = res.data;
-
-        if (!json || !json.data) {
-          throw new Error("No data in response");
-        }
-
-        const d = json.data;
-
-        const workSeconds = (d.productiveAppTime || 0) + (d.productiveWebTime || 0);
-        const activeSeconds = workSeconds;
-        const idleSeconds = d.idleTime || 0;
-        const productivityScore = d.productivityScore || 0;
-
-        setStatValues({
-          workTimeSeconds: workSeconds,
-          activeTimeSeconds: activeSeconds,
-          idleTimeSeconds: idleSeconds,
-          manualTimeSeconds: 0,
-          productiveTimeSeconds: workSeconds,
-          unproductiveTimeSeconds: 0,
-          neutralTimeSeconds: 0,
-          utilizationPercent: productivityScore * 100,
-        });
-      } catch (err) {
-        console.error(err);
-        setStatsError("Failed to load status");
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-
-    fetchStats();
-  }, [rangeFilter]);
-
-  const getCardValue = (key) => {
-    switch (key) {
-      case "workTime":
-        return formatSecondsToHours(statValues.workTimeSeconds);
-      case "activeTime":
-        return formatSecondsToHours(statValues.activeTimeSeconds);
-      case "idleTime":
-        return formatSecondsToHours(statValues.idleTimeSeconds);
-      case "manualTime":
-        return formatSecondsToHours(statValues.manualTimeSeconds);
-      case "productiveTime":
-        return formatSecondsToHours(statValues.productiveTimeSeconds);
-      case "unproductiveTime":
-        return formatSecondsToHours(statValues.unproductiveTimeSeconds);
-      case "neutralTime":
-        return formatSecondsToHours(statValues.neutralTimeSeconds);
-      case "utilization":
-        return `${statValues.utilizationPercent.toFixed(2)}%`;
-      default:
-        return "00:00 h";
-    }
-  };
+  const ranges = ["daily","yesterday","weekly","trend","custom"];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-3xl bg-white p-4 shadow-sm border border-slate-200 sm:flex-row sm:items-center sm:justify-between">
+    <div style={{ fontFamily: "system-ui,-apple-system,sans-serif", background: "#f8fafc", minHeight: "100vh", padding: 20, color: "#0f172a", boxSizing: "border-box" }}>
+
+      {/* Header */}
+      <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Track your team’s work and productivity.
-          </p>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Dashboard</h1>
+          <p style={{ margin: "3px 0 0", fontSize: 12, color: "#94a3b8" }}>Track your team's work and productivity.</p>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setTodayOnly((v) => !v)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm flex items-center gap-2 hover:bg-slate-50"
-          >
-            <CalendarDays size={16} />
-            {todayOnly ? "Today" : "All Dates"}
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setTodayOnly(v => !v)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 13px", border: "1px solid #e2e8f0", borderRadius: 10, background: "#fff", fontSize: 12, color: "#475569", cursor: "pointer" }}>
+            <CalendarIcon /> {todayOnly ? "Today" : "All Dates"}
           </button>
-
-          <div className="relative">
-            <button
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm flex items-center gap-2 hover:bg-slate-50"
-              onClick={() => setShowFilter((prev) => !prev)}
-            >
-              <Filter size={16} /> Filter ({rangeFilter})
+          <div style={{ position: "relative" }}>
+            <button onClick={() => setShowFilter(v => !v)}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 13px", border: "1px solid #e2e8f0", borderRadius: 10, background: "#fff", fontSize: 12, color: "#475569", cursor: "pointer" }}>
+              <FilterIcon /> Filter
             </button>
-
             {showFilter && (
-              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-slate-200 bg-white shadow-md z-10 text-sm">
-                <button
-                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                    rangeFilter === "daily" ? "text-blue-600 font-medium" : "text-slate-700"
-                  }`}
-                  onClick={() => {
-                    setRangeFilter("daily");
-                    setShowFilter(false);
-                  }}
-                >
-                  Daily
-                </button>
-                <button
-                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                    rangeFilter === "yesterday" ? "text-blue-600 font-medium" : "text-slate-700"
-                  }`}
-                  onClick={() => {
-                    setRangeFilter("yesterday");
-                    setShowFilter(false);
-                  }}
-                >
-                  Yesterday
-                </button>
-                <button
-                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                    rangeFilter === "weekly" ? "text-blue-600 font-medium" : "text-slate-700"
-                  }`}
-                  onClick={() => {
-                    setRangeFilter("weekly");
-                    setShowFilter(false);
-                  }}
-                >
-                  Weekly
-                </button>
-                <button
-                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                    rangeFilter === "trend" ? "text-blue-600 font-medium" : "text-slate-700"
-                  }`}
-                  onClick={() => {
-                    setRangeFilter("trend");
-                    setShowFilter(false);
-                  }}
-                >
-                  Trend
-                </button>
-                <button
-                  className={`block w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                    rangeFilter === "custom" ? "text-blue-600 font-medium" : "text-slate-700"
-                  }`}
-                  onClick={() => {
-                    setRangeFilter("custom");
-                    setShowFilter(false);
-                  }}
-                >
-                  Custom
-                </button>
+              <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", width: 140, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", zIndex: 50, overflow: "hidden" }}>
+                {ranges.map(r => (
+                  <button key={r} onClick={() => { setRangeFilter(r); setShowFilter(false); }}
+                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 14px", background: "none", border: "none", fontSize: 12, color: rangeFilter === r ? "#2563eb" : "#475569", fontWeight: rangeFilter === r ? 600 : 400, cursor: "pointer" }}>
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {loadingStats && (
-        <div className="text-xs text-slate-400 px-1">Loading productivity data…</div>
-      )}
-      {statsError && (
-        <div className="text-xs text-red-500 px-1">{statsError}</div>
-      )}
-
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {statCardsConfig.map(({ key, title, change, icon: Icon, color }) => (
-          <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{title}</p>
-                <p className="mt-2 text-2xl font-semibold text-blue-600">
-                  {getCardValue(key)}
-                </p>
-              </div>
-              <Icon size={18} className={color} />
+      {/* Stat Cards — 4 columns × 2 rows */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 16 }}>
+        {statCards.map(({ key, label, value, change, color }) => (
+          <div key={key} style={{ ...card, padding: "14px 16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>{label}</p>
+              <span style={{ color, flexShrink: 0 }}>{icons[key](color)}</span>
             </div>
-            <div className="mt-3 text-xs font-medium text-emerald-600">{change}</div>
+            <p style={{ margin: "8px 0 6px", fontSize: 22, fontWeight: 700, color: "#2563eb" }}>{value}</p>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, color: "#16a34a", fontWeight: 600, background: "#f0fdf4", padding: "2px 7px", borderRadius: 6 }}>
+              <ArrowUpIcon /> {change}
+            </span>
           </div>
         ))}
-      </section>
+      </div>
 
-      <section className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setActiveTab("Activities")}
-                className={`rounded-lg px-3 py-1.5 text-xs ${
-                  activeTab === "Activities"
-                    ? "bg-blue-600 text-white"
-                    : "border border-slate-200 text-slate-600"
-                }`}
-              >
-                Activities
+      {/* Full-width Line Chart */}
+      <div style={{ ...card, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["Activities","Utilization"].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                style={{ padding: "5px 14px", borderRadius: 8, fontSize: 12, border: activeTab === tab ? "none" : "1px solid #e2e8f0", background: activeTab === tab ? "#2563eb" : "#fff", color: activeTab === tab ? "#fff" : "#64748b", cursor: "pointer", fontWeight: 500 }}>
+                {tab}
               </button>
-              <button
-                onClick={() => setActiveTab("Utilization")}
-                className={`rounded-lg px-3 py-1.5 text-xs ${
-                  activeTab === "Utilization"
-                    ? "bg-blue-600 text-white"
-                    : "border border-slate-200 text-slate-600"
-                }`}
-              >
-                Utilization
-              </button>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              <span>
-                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-300" />
-                Active Time
-              </span>
-              <span>
-                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-yellow-300" />
-                Break Time
-              </span>
-              <span>
-                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-pink-300" />
-                Manual Time
-              </span>
-            </div>
+            ))}
           </div>
-
-          <div className="h-72 rounded-xl border border-slate-100 bg-white p-2">
-            {activeTab === "Activities" ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="active" stroke="#93c5fd" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="break" stroke="#fcd34d" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="manual" stroke="#f9a8d4" strokeWidth={3} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-full items-center justify-center text-slate-400">
-                Utilization view placeholder
-              </div>
-            )}
+          <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#94a3b8" }}>
+            {[["#93c5fd","Active Time"],["#fcd34d","Break Time"],["#f9a8d4","Manual Time"]].map(([c,l]) => (
+              <span key={l} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: c, display: "inline-block" }} />{l}
+              </span>
+            ))}
           </div>
         </div>
+        <div style={{ height: 300 }}>
+          {activeTab === "Activities" ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false}
+                  ticks={[0,10,20,30,40,50,60,120,180]}
+                  tickFormatter={v => v === 0 ? "0" : v >= 60 ? `${Math.floor(v/60)} hr` : `${v}m`}
+                />
+                <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 12 }} />
+                <Line type="monotone" dataKey="active" stroke="#93c5fd" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="breakT" stroke="#fcd34d" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="manual" stroke="#f9a8d4" strokeWidth={2.5} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#94a3b8", fontSize: 13 }}>
+              Utilization view placeholder
+            </div>
+          )}
+        </div>
+      </div>
 
-        <div className="rounded-2xl  border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-base font-semibold">Category Breakdown</h3>
-          <div className="mt-4 h-72">
+      {/* Middle Row: Categories (left) + Donut (right) */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+
+        {/* Top Platform Categories */}
+        <div style={card}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Top Platform Categories</h3>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px", padding: "0 0 8px", borderBottom: "1px solid #f1f5f9" }}>
+            <span style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>Category Name</span>
+            <span style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", textAlign: "right" }}>Time</span>
+            <span />
+          </div>
+          {categories.map((cat, i) => (
+            <div key={cat} style={{ display: "grid", gridTemplateColumns: "1fr 70px 70px", alignItems: "center", padding: "11px 0", borderBottom: i < categories.length - 1 ? "1px solid #f8fafc" : "none" }}>
+              <span style={{ fontSize: 13, color: "#1e293b" }}>{cat}</span>
+              <span style={{ fontSize: 13, color: "#64748b", textAlign: "right" }}>28.50%</span>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", gap: 3, fontSize: 11, color: "#16a34a", fontWeight: 600 }}>
+                <ArrowUpIcon /> +34%
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Category Breakdown Donut */}
+        <div style={card}>
+          <h3 style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 600 }}>Category Breakdown</h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", marginBottom: 4 }}>
+            {donutData.map(d => (
+              <span key={d.name} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#64748b" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: d.color, display: "inline-block", flexShrink: 0 }} />{d.name}
+              </span>
+            ))}
+          </div>
+          <div style={{ height: 290 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie
-                  data={donutData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={4}
-                >
-                  {donutData.map((entry) => (
+                <Pie data={donutData} dataKey="value" nameKey="name" innerRadius={80} outerRadius={120} paddingAngle={3} startAngle={90} endAngle={-270}>
+                  {donutData.map(entry => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 12 }} formatter={(v, n) => [`${v}%`, n]} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold">Top Platform Categories</h3>
-            <button className="text-sm text-blue-600">View All</button>
-          </div>
-          <div className="space-y-4">
-            {categories.map((item) => (
-              <div key={item} className="flex items-center justify-between border-b border-slate-100 pb-3 text-sm">
-                <span>{item}</span>
-                <span className="text-slate-500">28.50%</span>
-              </div>
-            ))}
-          </div>
+      {/* Full-width Apps & Websites */}
+      <div style={card}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Apps & Websites</h3>
+          <button style={{ background: "none", border: "none", color: "#2563eb", fontSize: 13, cursor: "pointer" }}>View All</button>
         </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {apps.map(app => (
+            <div key={app.name} style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", alignItems: "center", gap: 16, border: "1px solid #f1f5f9", borderRadius: 12, padding: "10px 14px" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: "#1e293b" }}>{app.name}</p>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>Website / App</p>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 20, background: statusStyle[app.status].bg, color: statusStyle[app.status].color, whiteSpace: "nowrap" }}>
+                {app.status}
+              </span>
+              <span style={{ fontSize: 13, color: "#64748b" }}>28.50%</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, color: "#16a34a", fontWeight: 600, background: "#f0fdf4", padding: "2px 7px", borderRadius: 6 }}>
+                <ArrowUpIcon /> +34%
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold">Apps & Websites</h3>
-            <button className="text-sm text-blue-600">View All</button>
-          </div>
-          <div className="space-y-3">
-            {filteredApps.map(([name, status]) => (
-              <div key={name} className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-3">
-                <div>
-                  <p className="text-sm font-medium">{name}</p>
-                  <p className="text-xs text-slate-400">Website / App</p>
-                </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    status === "Productive"
-                      ? "bg-emerald-50 text-emerald-600"
-                      : status === "Unproductive"
-                      ? "bg-red-50 text-red-500"
-                      : "bg-amber-50 text-amber-600"
-                  }`}
-                >
-                  {status}
-                </span>
-              </div>
-            ))}
-            {filteredApps.length === 0 && (
-              <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
-                No matching apps found.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
     </div>
   );
-};
-
-export default Dashboard;
+}
