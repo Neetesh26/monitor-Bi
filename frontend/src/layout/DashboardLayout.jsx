@@ -3,12 +3,6 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Bell,
   ChevronDown,
-  Clock3,
-  ChartNoAxesColumnIncreasing,
-  HardDriveUpload,
-  Home,
-  PanelsTopLeft,
-  Users,
   Search,
   Plus,
   LogOut,
@@ -17,23 +11,48 @@ import { useDispatch, useSelector } from "react-redux";
 import { axiosInstance } from "../config/axiosInstance";
 import { jwtDecode } from "jwt-decode";
 import { removeUser } from "../feature/AuthSlice";
+import DashPng from "../assets/Layout.svg";
+import BagSimple from "../assets/BagSimple.svg";
+import Clock from "../assets/Clock.svg";
+import UserFour from "../assets/UsersFour.svg";
+import FileText from "../assets/FileText.svg";
+import Images from "../assets/Images.svg";
+import DashPngActive from "../assets/icons/LayoutActive.svg";
+import BagSimpleActive from "../assets/icons/BagSimpleActive.svg";
+import ClockActive from "../assets/icons/ClockActive.svg";
+import UserFourActive from "../assets/icons/UsersFourActive.svg";
+import ImagesActive from "../assets/icons/ImagesActive.svg";
 
 const navItems = [
-  { label: "Dashboard", icon: Home, path: "/dashboard" },
-  { label: "Time & Attendance", icon: Clock3, path: "/time-attendance" },
-  { label: "Teams", icon: Users, path: "/teams" },
-  { label: "Projects", icon: PanelsTopLeft, path: "/projects" },
-  { label: "Screenshots", icon: HardDriveUpload, path: "/screenshots" },
-
-  // ✅ UPDATED REPORTS WITH DROPDOWN
+  {
+    label: "Dashboard",
+    icon: { inactive: DashPng, active: DashPngActive },
+    path: "/dashboard",
+  },
+  {
+    label: "Time & Attendance",
+    icon: { inactive: Clock, active: ClockActive },
+    path: "/time-attendance",
+  },
+  {
+    label: "Teams",
+    icon: { inactive: UserFour, active: UserFourActive },
+    path: "/teams",
+  },
+  {
+    label: "Projects",
+    icon: { inactive: BagSimple, active: BagSimpleActive },
+    path: "/projects",
+  },
+  {
+    label: "Screenshots",
+    icon: { inactive: Images, active: ImagesActive },
+    path: "/screenshots",
+  },
   {
     label: "Reports",
-    icon: ChartNoAxesColumnIncreasing,
-    children: [
-      { label: "Daily Report", path: "/reports/daily" },
-      { label: "Weekly Report", path: "/reports/weekly" },
-      { label: "Monthly Report", path: "/reports/monthly" },
-    ],
+    icon: { inactive: FileText },
+    children: [{ label: "Apps & Websites", path: "/setting" }],
   },
 ];
 
@@ -55,8 +74,6 @@ const DashboardLayout = () => {
   const [nameError, setNameError] = useState("");
   const [query, setQuery] = useState("");
   const [showMenu, setShowMenu] = useState(false);
-
-  // ✅ NEW STATE FOR DROPDOWN
   const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
@@ -112,14 +129,14 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("auth");
-   
     dispatch(removeUser());
     navigate("/login");
   };
 
   const displayName =
     profile?.name || user?.name || user?.email?.split("@")[0] || "User";
-  const initials = getInitials(displayName);    
+  const initials = getInitials(displayName);
+
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-slate-800">
       <div className="flex min-h-screen">
@@ -139,10 +156,10 @@ const DashboardLayout = () => {
 
           {/* NAVIGATION */}
           <nav className="space-y-1">
-            {navItems.map(({ label, icon: Icon, path, children }) => {
+            {navItems.map(({ label, icon, path, children }) => {
               const isOpen = openDropdown === label;
 
-              // ✅ DROPDOWN ITEM
+              // DROPDOWN ITEM (Reports)
               if (children) {
                 return (
                   <div key={label}>
@@ -150,10 +167,14 @@ const DashboardLayout = () => {
                       onClick={() =>
                         setOpenDropdown(isOpen ? null : label)
                       }
-                      className="w-full flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-500 hover:bg-slate-50"
+                      className="w-full flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
                     >
                       <div className="flex items-center gap-3">
-                        <Icon size={16} />
+                        <img
+                          src={icon.inactive}
+                          alt={label}
+                          className="h-4 w-4 object-contain opacity-80"
+                        />
                         <span>{label}</span>
                       </div>
 
@@ -161,7 +182,7 @@ const DashboardLayout = () => {
                         size={16}
                         className={`transition-transform ${
                           isOpen ? "rotate-180" : ""
-                        }`}
+                        } text-slate-400`}
                       />
                     </button>
 
@@ -188,7 +209,7 @@ const DashboardLayout = () => {
                 );
               }
 
-              // ✅ NORMAL ITEM
+              // NORMAL ITEM: switch icon src based on isActive
               return (
                 <NavLink
                   key={label}
@@ -197,12 +218,20 @@ const DashboardLayout = () => {
                     `w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
                       isActive
                         ? "bg-blue-50 text-blue-600 font-medium"
-                        : "text-slate-500 hover:bg-slate-50"
+                        : "text-slate-600 hover:bg-slate-50"
                     }`
                   }
                 >
-                  <Icon size={16} />
-                  <span>{label}</span>
+                  {({ isActive }) => (
+                    <>
+                      <img
+                        src={isActive ? icon.active : icon.inactive}
+                        alt={label}
+                        className="h-4 w-4 object-contain"
+                      />
+                      <span>{label}</span>
+                    </>
+                  )}
                 </NavLink>
               );
             })}
@@ -222,9 +251,7 @@ const DashboardLayout = () => {
                   Keep track of your team’s work and productivity.
                 </p>
                 {nameError && (
-                  <p className="mt-2 text-xs text-red-500">
-                    {nameError}
-                  </p>
+                  <p className="mt-2 text-xs text-red-500">{nameError}</p>
                 )}
               </div>
 

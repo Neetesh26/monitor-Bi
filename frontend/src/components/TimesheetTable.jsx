@@ -45,7 +45,6 @@ const TimesheetTable = ({ data }) => {
                 </div>
               </td>
 
-              {/* numeric cells centered */}
               <td className="text-center align-middle">{item.checkIn || "HH:MM"}</td>
               <td className="text-center align-middle">{item.checkOut || "HH:MM"}</td>
               <td className="text-center align-middle">{item.workTime || "HH:MM"}</td>
