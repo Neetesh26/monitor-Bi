@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { MonitorSmartphone, CalendarDays, Filter, ChevronDown, X } from "lucide-react";
+import {
+  MonitorSmartphone,
+  CalendarDays,
+  Filter,
+  ChevronDown,
+  X,
+} from "lucide-react";
 import { axiosInstance } from "../../config/axiosInstance";
 
 // fallback dummy
@@ -25,6 +31,22 @@ const dummyScreenshots = [
     title: "Figma",
     user: "Alisha Khan",
     time: "6:55 PM",
+    date: "20-03-2026",
+    url: "https://picsum.photos/seed/ui2/400/250",
+  },
+  {
+    id: "4",
+    title: "Figma",
+    user: "Alisha Khan",
+    time: "6:55 PM",
+    date: "20-03-2026",
+    url: "https://picsum.photos/seed/ui2/400/250",
+  },
+  {
+    id: "5",
+    title: "Figma",
+    user: "Alisha Khan",
+    time: "6:55 PM",
     date: "19-03-2026",
     url: "https://picsum.photos/seed/ui3/400/250",
   },
@@ -39,8 +61,6 @@ const ScreenshotsPage = () => {
   const [dateFilter, setDateFilter] = useState("today");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [collapsedDates, setCollapsedDates] = useState({});
-
-  // NEW: preview modal state
   const [previewShot, setPreviewShot] = useState(null);
 
   const getUserIdFromAuth = () => {
@@ -64,19 +84,23 @@ const ScreenshotsPage = () => {
 
   const applyDateFilter = (data, filterMode) => {
     if (filterMode === "all") return data;
+
     if (filterMode === "today") {
       const today = new Date();
       const todayStr = `${String(today.getDate()).padStart(2, "0")}-${String(
         today.getMonth() + 1
       ).padStart(2, "0")}-${today.getFullYear()}`;
+
       const filtered = data.filter((item) => item.date === todayStr);
       return filtered.length > 0 ? filtered : data;
     }
+
     return data;
   };
 
   useEffect(() => {
     const userId = getUserIdFromAuth();
+
     if (!userId) {
       const base = applyDateFilter(dummyScreenshots, dateFilter);
       setGrouped(groupByDate(base));
@@ -133,7 +157,6 @@ const ScreenshotsPage = () => {
     }));
   };
 
-  // NEW: close modal with ESC
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") setPreviewShot(null);
@@ -144,8 +167,9 @@ const ScreenshotsPage = () => {
 
   return (
     <div className="space-y-4">
+      
       {/* HEADER */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">Screenshots</h2>
           <p className="text-sm text-slate-500">
@@ -153,7 +177,7 @@ const ScreenshotsPage = () => {
           </p>
         </div>
 
-        <div className="relative flex gap-2">
+        <div className="relative flex flex-wrap gap-2">
           <button
             onClick={() =>
               setDateFilter((prev) => (prev === "today" ? "all" : "today"))
@@ -185,6 +209,7 @@ const ScreenshotsPage = () => {
               >
                 Today
               </button>
+
               <button
                 onClick={() => {
                   setDateFilter("all");
@@ -196,6 +221,7 @@ const ScreenshotsPage = () => {
               >
                 All Dates
               </button>
+
               <button
                 onClick={() => {
                   setDateFilter("custom");
@@ -212,8 +238,9 @@ const ScreenshotsPage = () => {
         </div>
       </div>
 
-      {/* CONTENT CARD */}
+      {/* CONTENT */}
       <div className="rounded-2xl border border-slate-300 bg-white p-4 space-y-4">
+
         {loading && (
           <div className="text-center text-sm text-slate-400">
             Loading screenshots...
@@ -234,7 +261,6 @@ const ScreenshotsPage = () => {
             <div key={date}>
               {/* DATE HEADER */}
               <button
-                type="button"
                 onClick={() => toggleDateCollapse(date)}
                 className="flex w-full items-center justify-between bg-slate-100 px-3 py-2 rounded-md text-sm font-medium text-slate-600 mb-3"
               >
@@ -249,13 +275,12 @@ const ScreenshotsPage = () => {
 
               {/* GRID */}
               {!isCollapsed && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {shots.map((shot) => (
                     <button
                       key={shot.id}
-                      type="button"
-                      onClick={() => setPreviewShot(shot)} // NEW: open modal
-                      className="border border-slate-300 rounded-xl overflow-hidden bg-white text-left hover:shadow-md transition-shadow"
+                      onClick={() => setPreviewShot(shot)}
+                      className="border border-slate-300 rounded-xl overflow-hidden bg-white text-left hover:shadow-md transition"
                     >
                       <img
                         src={shot.url}
@@ -285,54 +310,48 @@ const ScreenshotsPage = () => {
         })}
       </div>
 
-     {/* MODAL PREVIEW */}
-{previewShot && (
-  <div
-    className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-    onClick={() => setPreviewShot(null)}
-  >
-    <div
-      className="relative max-h-[92vh] w-[92vw] max-w-5xl overflow-hidden rounded-3xl bg-slate-950/95 shadow-2xl ring-1 ring-black/40"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Close button */}
-      <button
-        onClick={() => setPreviewShot(null)}
-        className="absolute right-4 top-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-slate-100 hover:bg-black/90"
-      >
-        <X size={18} />
-      </button>
+      {/* MODAL */}
+      {previewShot && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setPreviewShot(null)}
+        >
+          <div
+            className="relative max-h-[95vh] w-[95vw] sm:w-[90vw] max-w-5xl rounded-3xl bg-slate-950/95 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewShot(null)}
+              className="absolute right-4 top-4 z-20 h-8 w-8 flex items-center justify-center rounded-full bg-black/70 text-white"
+            >
+              <X size={18} />
+            </button>
 
-     
+            <div className="pt-8 flex items-center justify-center bg-gray-900">
+              <img
+                src={previewShot.url}
+                alt={previewShot.title}
+                className="max-h-[75vh] w-full object-contain"
+              />
+            </div>
 
-      {/* Screenshot area */}
-      <div className=" pt-8 flex items-center justify-center bg-gray-900">
-        <img
-          src={previewShot.url}
-          alt={previewShot.title}
-          className="max-h-[78vh] w-full object-contain"
-        />
-      </div>
-       {/* Info bar at top */}
-      <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3 text-xs text-slate-200">
-        <div>
-          <p className="text-sm font-medium text-slate-50">
-            {previewShot.title}
-          </p>
-          <p className="text-[11px] text-slate-400">
-            {previewShot.user}
-          </p>
+            <div className="flex items-center justify-between border-t border-slate-800 px-4 py-3 text-xs text-slate-200">
+              <div>
+                <p className="text-sm font-medium">{previewShot.title}</p>
+                <p className="text-[11px] text-slate-400">
+                  {previewShot.user}
+                </p>
+              </div>
+              <div className="text-right text-[11px] text-slate-400">
+                <div>{previewShot.date}</div>
+                <div>{previewShot.time}</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-[11px] text-right text-slate-400">
-          <div>{previewShot.date}</div>
-          <div>{previewShot.time}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };
 
-export default ScreenshotsPage;
+export default ScreenshotsPage; 

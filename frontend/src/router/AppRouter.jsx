@@ -12,6 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import TimeAttendence from "../pages/time&attendence/TimeAttendence";
 import TeamsPage from "../pages/teams/TeamsPage";
 import ScreenshotsPage from "../pages/screenshort/ScreenshotsPage";
+import NotFound from "../pages/not-Found/NotFound";
 
 const AppRouter = () => {
   const isLoggedIn = Boolean(localStorage.getItem("isLoggedIn"));
@@ -56,11 +57,6 @@ const AppRouter = () => {
           path: "/screenshots",
           element: <div className="p-8"><ScreenshotsPage />  </div>,
         },
-        {
-          path: "/reports",
-          element: <div className="p-8">Reports Page</div>,
-        },
-       
       ],
     },
     {
@@ -97,7 +93,7 @@ const AppRouter = () => {
     },
     {
       path: "*",
-      element: <Navigate to="/" replace />,
+      element: <NotFound />,
     },
   ]);
 
