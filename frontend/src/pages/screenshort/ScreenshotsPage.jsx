@@ -57,7 +57,7 @@ const ScreenshotsPage = () => {
   const [grouped, setGrouped] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+ 
   const [dateFilter, setDateFilter] = useState("today");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [collapsedDates, setCollapsedDates] = useState({});

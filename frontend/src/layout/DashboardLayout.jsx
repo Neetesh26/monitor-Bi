@@ -26,6 +26,7 @@ import BagSimpleActive from "../assets/icons/BagSimpleActive.svg";
 import ClockActive from "../assets/icons/ClockActive.svg";
 import UserFourActive from "../assets/icons/UsersFourActive.svg";
 import ImagesActive from "../assets/icons/ImagesActive.svg";
+import BiIcon from "../assets/icons/BiIcon.svg";
 
 const navItems = [
   {
@@ -162,9 +163,9 @@ const DashboardLayout = () => {
     <>
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 mb-8">
-        <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center font-bold flex-shrink-0">
-          bi
-        </div>
+       <div className="h-10 w-10 rounded-xl text-white flex items-center justify-center flex-shrink-0">
+  <img src={BiIcon} alt="BI Logo" className="h-6 w-6" />
+</div>
         <div className="min-w-0">
           <p className="text-sm font-semibold tracking-wide text-blue-600 truncate">
             WORK MONITOR
