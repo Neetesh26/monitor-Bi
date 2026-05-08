@@ -15,12 +15,29 @@ import ScreenshotsPage from "../pages/screenshort/ScreenshotsPage";
 import NotFound from "../pages/not-Found/NotFound";
 
 const AppRouter = () => {
-  const isLoggedIn = Boolean(localStorage.getItem("isLoggedIn"));
+   const existingAuth = localStorage.getItem("auth");
+
+    if (!existingAuth) {
+      const demoAuth = {
+        token: "demo-token-123",
+        user: {
+          email: "demo@gmail.com",
+          name: "Demo User",
+          role: "Admin",
+          userId: "123",
+          organizationId: "org1",
+        },
+      };
+
+      localStorage.setItem("auth", JSON.stringify(demoAuth));
+    }
+  const isLoggedIn = Boolean(localStorage.getItem("auth"));
+console.log(">>>",isLoggedIn);
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Navigate to={isLoggedIn ? "/attendance" : "/login"} replace />,
+      element: <Navigate to={isLoggedIn ? "/dashboard" : "/dashboard"} replace />,  // fix it bczz it it is only demo purpose and we want to show dashboard page without login
     },
     {
       path: "/login",

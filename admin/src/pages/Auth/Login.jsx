@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../config/axiosInstance";
 import { registerUser, setLoading, setError } from "../../feature/AuthSlice";
 import { jwtDecode } from "jwt-decode";
+import BiIcon from "../../assets/icons/BiIcon.svg";
 
 const getErrorMessage = (err) => {
   const data = err?.response?.data;
@@ -16,18 +17,18 @@ const getErrorMessage = (err) => {
 const Login = () => {
 
   localStorage.setItem(
-  "auth",
-  JSON.stringify({
-    user: {
-      email: "demo@gmail.com",
-      name: "Demo User",
-      role: "Admin",
-      userId: "123",
-      organizationId: "org1",
-    },
-    token: "demo-token-123",
-  })
-);
+    "auth",
+    JSON.stringify({
+      user: {
+        email: "demo@gmail.com",
+        name: "Demo User",
+        role: "Admin",
+        userId: "123",
+        organizationId: "org1",
+      },
+      token: "demo-token-123",
+    })
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.users);
@@ -103,11 +104,23 @@ const Login = () => {
       )}
 
       <div className="w-full max-w-md rounded-[20px] border border-slate-200 bg-white p-6 shadow-xl">
-        <div className="mb-6 text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400"> BI WORK MONITOR</p>
-          <h1 className="mt-3 text-2xl font-semibold text-slate-900">Welcome back!</h1>
-          <p className="mt-1 text-sm text-slate-500">Please login to continue to your account.</p>
-        </div>
+       <div className="mb-6 text-center">
+  <div className="flex items-center justify-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+    <div className="h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0">
+      <img src={BiIcon} alt="BI Logo" className="h-6 w-6 object-contain" />
+    </div>
+
+    <span className="text-[#1B48DE] font-bold">WORK MONITOR</span>
+  </div>
+
+  <h1 className="mt-3 text-2xl font-semibold text-slate-900">
+    Welcome back!
+  </h1>
+
+  <p className="mt-1 text-sm text-slate-500">
+    Please login to continue to your account.
+  </p>
+</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {success && (
