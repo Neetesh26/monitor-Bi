@@ -6,9 +6,9 @@ import Tabs from "../../components/Tabs";
 import { useState } from "react";
 import Toolbar from "../../components/Toolbar";
 import TodayCard from "../../components/TodayCard";
-import workTime from "./../../assets/dashboard/BagSimple.svg?react";
-import trendup from "./../../assets/dashboard/TrendUp.svg?react";
-import trenddown from "./../../assets/dashboard/TrendDown.svg?react";
+import WorkTime from "./../../assets/dashboard/BagSimple.svg?react";
+import Trendup from "./../../assets/dashboard/TrendUp.svg?react";
+import Trenddown from "./../../assets/dashboard/TrendDown.svg?react";
 
 export default function EmployeeDetails(){
     const {id} = useParams();
@@ -23,9 +23,9 @@ export default function EmployeeDetails(){
             <Tabs active={activeTab} setActive={setActiveTab} tabs={tabs} />
             <Toolbar data="Today" />
             <div className="grid grid-cols-3 gap-4 mb-6 w-full">
-                <TodayCard title="Work Time" value="01:42"  Icon={workTime} />
-                <TodayCard title="Productive Time" value="01:42"  Icon={trendup} />
-                <TodayCard title="Unproductive Time" value="01:42"  Icon={trenddown}/>
+                <TodayCard title="Work Time" value="01:42"  Icon={WorkTime} />
+                <TodayCard title="Productive Time" value="01:42"  Icon={Trendup} />
+                <TodayCard title="Unproductive Time" value="01:42"  Icon={Trenddown}/>
             </div>
         </>
     )
