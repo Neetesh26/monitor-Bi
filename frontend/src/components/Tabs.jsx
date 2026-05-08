@@ -1,7 +1,4 @@
 function Tabs({active, setActive,tabs}) {
-
-  
-
   return (
     <div className="w-full ">
       <div className="flex justify-evenly border-b border-[#D1D5E4]">

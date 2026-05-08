@@ -1,6 +1,6 @@
 import React from "react";
 
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children, showClose = true }) => {
   if (!isOpen) return null;
 
   return (
@@ -8,12 +8,14 @@ const Modal = ({ isOpen, onClose, children }) => {
       <div className="bg-white rounded-2xl shadow-xl w-[620px] p-6 relative">
         
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 hover:text-black"
-        >
-          ✕
-        </button>
+        {showClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-4 text-gray-500 hover:text-black"
+          >
+            ✕
+          </button>
+        )}
 
         {children}
       </div>

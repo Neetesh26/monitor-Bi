@@ -15,12 +15,20 @@ const PersonalComputer = () => {
     setEmployees([...employees, { name: "", email: "" }]);
   };
 
+  // ✅ REMOVE ROW FUNCTION
+  const removeRow = (index) => {
+    if (employees.length === 1) return; // prevent deleting last row
+    const updated = employees.filter((_, i) => i !== index);
+    setEmployees(updated);
+  };
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Add new Employee</h2>
 
       {employees.map((emp, index) => (
-        <div key={index} className="flex gap-2 mb-3">
+        <div key={index} className="flex gap-2 mb-3 items-center">
+          
           <input
             type="text"
             placeholder="Full Name"
@@ -30,6 +38,7 @@ const PersonalComputer = () => {
             }
             className="border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2 rounded-md w-full outline-none"
           />
+
           <input
             type="email"
             placeholder="Email ID"
@@ -39,6 +48,14 @@ const PersonalComputer = () => {
             }
             className="border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2 rounded-md w-full outline-none"
           />
+
+          {/* ❌ REMOVE BUTTON */}
+          <button
+            onClick={() => removeRow(index)}
+            className="text-gray-400 hover:text-red-500 text-lg px-2"
+          >
+            ✕
+          </button>
         </div>
       ))}
 

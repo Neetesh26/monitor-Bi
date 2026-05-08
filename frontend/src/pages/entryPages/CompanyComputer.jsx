@@ -15,12 +15,19 @@ const CompanyComputer = () => {
     setEmployees([...employees, { name: "", deviceId: "", email: "" }]);
   };
 
+  const removeRow = (index) => {
+    if (employees.length === 1) return; 
+    const updated = employees.filter((_, i) => i !== index);
+    setEmployees(updated);
+  };
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Add new Employee</h2>
 
       {employees.map((emp, index) => (
-        <div key={index} className="flex gap-2 mb-3">
+        <div key={index} className="flex gap-2 mb-3 items-center">
+          
           <input
             type="text"
             placeholder="Full Name"
@@ -50,6 +57,13 @@ const CompanyComputer = () => {
             }
             className="border p-2 rounded w-1/3"
           />
+
+          <button
+            onClick={() => removeRow(index)}
+            className="text-gray-400 hover:text-red-500 text-lg px-2"
+          >
+            ✕
+          </button>
         </div>
       ))}
 
