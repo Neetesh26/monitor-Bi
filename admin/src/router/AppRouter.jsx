@@ -38,7 +38,7 @@ const AppRouter = () => {
       ),
       children: [
         {
-          path: "/dashboard",
+          path: "/employee/dashboard",
           element: <Dashboard />,
         },
         {
