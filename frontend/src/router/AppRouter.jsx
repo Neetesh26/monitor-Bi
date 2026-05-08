@@ -1,7 +1,5 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import AddEmployee from "../pages/employeesPages/AddEmployee";
-
+import AddEmployee from "../pages/entryPages/AddEmployee";
 
 
 const AppRouter = () => {
@@ -10,7 +8,6 @@ const AppRouter = () => {
       path: "/",
       element: <AddEmployee />,
     },
-   
   ]);
 
   return <RouterProvider router={router} />;

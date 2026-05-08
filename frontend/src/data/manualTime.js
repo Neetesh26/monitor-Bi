@@ -1,0 +1,32 @@
+export const manualTimeData = [
+  {
+    id: "#00001",
+    name: "Alisha Khan",
+    avatar: "https://i.pravatar.cc/40?img=1",
+    task: "Task Detail",
+    project: "Project Name",
+    date: "Mar 27, 2026",
+    startTime: "02:00 PM",
+    endTime: "05:00 PM",
+    duration: "03:00",
+    location: "Remote",
+    productivity: "Productive",
+    status: "Approved",
+  },
+  {
+    id: "#00002",
+    name: "Amul Sharma",
+    avatar: "https://i.pravatar.cc/40?img=2",
+    productivity: "Productive",
+    location: "Remote",
+    status: "Rejected",
+  },
+  {
+    id: "#00003",
+    name: "Vandana Ramchandani",
+    avatar: "https://i.pravatar.cc/40?img=3",
+    productivity: "Productive",
+    location: "Remote",
+    status: "Pending",
+  },
+];
