@@ -31,14 +31,13 @@ const AppRouter = () => {
 
       localStorage.setItem("auth", JSON.stringify(demoAuth));
     }
-    // const user = localStorage.getItem("auth");
   const isLoggedIn = Boolean(localStorage.getItem("auth"));
 console.log(">>>",isLoggedIn);
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Navigate to={isLoggedIn ? "/dashboard" : "/dashboard"} replace />,
+      element: <Navigate to={isLoggedIn ? "/dashboard" : "/dashboard"} replace />,  // fix it bczz it it is only demo purpose and we want to show dashboard page without login
     },
     {
       path: "/login",
