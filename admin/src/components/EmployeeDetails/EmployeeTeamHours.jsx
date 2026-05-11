@@ -1,7 +1,7 @@
 export default function TeamHoursCard() {
   return (
-    <div className="w-[320px] rounded-xl border border-[#D1D5E4] bg-white px-5 py-4 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className=" rounded-xl border border-[#D1D5E4] bg-white px-5 py-4 shadow-sm">
+      <div className="flex items-center justify-between border border-[#1B48DE] shadow rounded-md p-4">
         <h3 className="text-[15px] font-medium text-[#1E293B]">
           Hanat
         </h3>

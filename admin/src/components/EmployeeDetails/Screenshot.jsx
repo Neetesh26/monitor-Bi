@@ -30,15 +30,20 @@ const screenshots = [
 
 export default function Screenshots() {
   return (
-    <div className="w-full p-2 mb-6  bg-white rounded-2xl shadow-sm border border-[#D1D5E4]">
+    <div className="w-full mb-6  bg-white rounded-2xl shadow-sm border border-[#D1D5E4]">
       
       {/* Title */}
-      <h2 className="w-full  text-lg font-bold text-gray-800 mb-6 border-b border-[#D1D5E4] px-4 py-4">
-          Screenshots
-      </h2>
-
+      <div className="w-full border-b border-[#D1D5E4] px-4 py-4 flex items-center justify-between mb-2">
+            <h2 className="text-lg font-bold text-gray-800">
+            Screenshot
+            </h2>
+            <button className="text-sm font-semibold text-blue-600 hover:underline">
+            View All
+            </button>
+        </div>
+      
       {/* Cards */}
-      <div className="flex gap-6 flex-wrap justify-between">
+      <div className="flex gap-6 flex-wrap justify-between p-2">
         {screenshots.map((item) => (
           <ScreenshotCard
             key={item.id}
