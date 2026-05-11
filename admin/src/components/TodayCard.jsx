@@ -1,4 +1,3 @@
-
 export default function TodayCard({title,value,total,Icon,color}) {
   return (
     <div className="w-[357px] h-[91px] rounded-2xl border border-[#D1D5E4] p-4 flex flex-col justify-between">

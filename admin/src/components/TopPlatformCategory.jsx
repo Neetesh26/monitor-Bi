@@ -1,4 +1,4 @@
-import Success from "./../../assets/dashboard/Vector.svg?react"
+import Success from "./../assets/dashboard/Vector.svg?react"
 
 const data = [
   { name: "Services", value: "28.50%", change: "+24%" },

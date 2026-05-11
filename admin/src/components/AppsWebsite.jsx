@@ -59,20 +59,15 @@ const AppsWebsites = () => {
             key={index}
             className="flex items-center justify-between  shadow rounded-xl px-4 py-3"
           >
-            {/* Left: App Name */}
-            <div className="flex items-center gap-4">
               <span className="text-sm text-gray-800 font-medium">
                 {app.name}
               </span>
-
-              {/* Status Badge */}
+            
               <span
                 className={`text-xs px-3 py-1 rounded-full font-medium ${statusStyles[app.status]}`}
               >
                 {app.status}
               </span>
-            </div>
-
             {/* Right: Metrics */}
             <div className="flex items-center gap-4">
               <span className="text-sm font-semibold text-gray-700">
