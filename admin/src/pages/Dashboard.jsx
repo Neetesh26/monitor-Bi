@@ -10,9 +10,9 @@ import TrendDown from "./../assets/dashboard/TrendDown.svg?react";
 import TrendUp from "./../assets/dashboard/TrendUp.svg?react";
 import ActivityChart from "./../components/Dashboard/Chart";
 import EmployeeTableCard from "../components/Dashboard/EmployeeCard";
-import TopPlatformCategories from "../components/Dashboard/TopPlatformCategory";
-import CategoryBreakdown from "../components/Dashboard/CategoryBreakdown";
-import AppsWebsites from "../components/Dashboard/AppsWebsite";
+import TopPlatformCategories from "./../components/TopPlatformCategory";
+import CategoryBreakdown from "./../components/CategoryBreakdown";
+import AppsWebsites from "../components/AppsWebsite";
 
 const employees = [
   {

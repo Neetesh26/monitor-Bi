@@ -373,3 +373,72 @@ export const employeeColumns = [
     render: (emp) => emp.breakTime || "HH:MM",
   }
 ];
+
+export const employeeTimesheetColumns = [
+    {
+        header: "Date",
+        render: emp => (
+            <div>
+                <div className="text-[#101828] font-medium">
+                  {emp.date}
+                </div>
+
+              <div className="text-xs text-[#667085]">
+                {emp.day}
+              </div>
+            </div>
+        )
+    },
+    {
+    header: "Status",
+    render: (emp) => (
+      <div>
+        <div className="text-green-600">{emp.status}</div>
+        <div className="flex items-center gap-1 text-gray-400 text-xs">
+          <MapPin size={12} />
+          {emp.location}
+        </div>
+      </div>
+    ),
+  },
+  {
+    header: "Check In",
+    render: emp=>emp.checkIn || "HH:MM",
+  },
+  {
+    header: "Check Out",
+    render: emp=>emp.checkOut || "HH:MM",
+  },
+  {
+    header: "Work time",
+    render: (emp) => emp.workTime || "HH:MM",
+  },
+  {
+    header: "Manual Time",
+    render: (emp) => emp.manualTime || "HH:MM",
+  },
+  {
+    header: "Computer Act.",
+    render: (emp) => emp.computerActivity || "HH:MM",
+  },
+  {
+    header: "Productive",
+    render: (emp) => emp.productive || "HH:MM",
+  },
+  {
+    header: "Unproductive",
+    render: (emp) => emp.unproductive || "HH:MM",
+  },
+  {
+    header: "Neutral",
+    render: (emp) => emp.neutral || "HH:MM",
+  },
+  {
+    header: "Idle Time",
+    render: (emp) => emp.idleTime || "HH:MM",
+  },
+  {
+    header: "Break Time",
+    render: (emp) => emp.breakTime || "HH:MM",
+  },
+];
