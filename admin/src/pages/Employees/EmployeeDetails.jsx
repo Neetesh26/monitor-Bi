@@ -20,6 +20,8 @@ import { employeeTimesheetColumns } from "../../components/Columns";
 import { employeeTimesheetData } from "../../data/employeeTimesheet";
 import TeamHoursCard from "../../components/EmployeeDetails/EmployeeTeamHours";
 import { ChevronRight } from 'lucide-react';
+import TasksCard from "../../components/EmployeeDetails/TaskCard";
+import TimeOnProjectChart from "../../components/EmployeeDetails/ProjectChart";
 
 export default function EmployeeDetails(){
     const {id} = useParams();
@@ -75,13 +77,17 @@ export default function EmployeeDetails(){
                 activeTab==="Projects" && (
                     <>
                         <Toolbar data={"This Month"} />
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="col-span-1">
+                        <div className="grid grid-cols-2 gap-4 items-start">
+                            <div className="col-span-1 ">
                                 <TeamHoursCard />
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-1 space-y-6">
                                 <p>All Projects <ChevronRight className="inline-flex"/><span className="text-blue-400">Hanat</span></p>
-                            </div>
+                                <TasksCard />
+                                <TimeOnProjectChart /> 
+                                <Screenshots /> 
+                                <AppsWebsites />
+                            </div> 
                         </div>  
                     </>
                                      
