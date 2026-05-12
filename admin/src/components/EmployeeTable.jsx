@@ -25,7 +25,10 @@ export default function EmployeeTable({columns,data}) {
           >
             {columns.map((col, i) => (
               <div key={i} className="flex items-center">
-                {col.render(emp)}
+               {col.render
+                 ? col.render(emp)
+                : emp[col.accessor]
+              }
               </div>
             ))}
           </div>

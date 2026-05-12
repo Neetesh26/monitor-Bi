@@ -442,3 +442,63 @@ export const employeeTimesheetColumns = [
     render: (emp) => emp.breakTime || "HH:MM",
   },
 ];
+
+export const teamColumns = [
+  {
+    header: "Team",
+    accessor: "team",
+    render: item => (
+      <Link 
+      to={`/teams/${item.team}`}
+      className="font-medium text-gray-800"
+      >
+        {item.team}
+      </Link>
+    )
+  },
+
+  {
+    header: "Employees",
+    accessor: "employees",
+  },
+
+  {
+    header: "Work time",
+    accessor: "workTime",
+  },
+
+  {
+    header: "Computer Act.",
+    accessor: "computerActivity",
+  },
+
+  {
+    header: "Manual Time",
+    accessor: "manualTime",
+  },
+
+  {
+    header: "Productive",
+    accessor: "productive",
+  },
+
+  {
+    header: "Unproductive",
+    accessor: "unproductive",
+  },
+
+  {
+    header: "Neutral",
+    accessor: "neutral",
+  },
+
+  {
+    header: "Idle Time",
+    accessor: "idleTime",
+  },
+
+  {
+    header: "Break Time",
+    accessor: "breakTime",
+  },
+];

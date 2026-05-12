@@ -9,7 +9,7 @@ export default function StatCard({
       
       {/* Top Row */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-sm font-semibold text-gray-500">{title}</p>
         <div className="p-1.5 rounded-md">
           <Icon className="w-6 h-6"/>
         </div>

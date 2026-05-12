@@ -1,12 +1,16 @@
 import { Bell, Plus, Search, ChevronDown } from "lucide-react";
 import Profile from "./../assets/sidebar/profile.png";
+import AddTeamModal from "../pages/AddNewTeam";
+import {useState} from "react";
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
+
   return (
     <header className="w-full bg-white border-b border-[#F4F6FB] px-8 py-3 flex items-center justify-between">
       
       {/* Left */}
-      <h1 className="text-xl font-semibold text-blue-600">
+      <h1 className="text-xl font-bold text-[#1B48DE]">
         Hello, Sufiyan!
       </h1>
 
@@ -34,8 +38,14 @@ export default function Header() {
         </button>
 
         {/* Add Button */}
-        <button className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700">
-          <Plus size={18} className="text-white" />
+        <button 
+        className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700"
+        onClick={()=>setOpen(true)}
+        >
+          <Plus 
+          size={18} 
+          className="text-white cursor-pointer"
+           />
         </button>
 
         {/* Profile */}
@@ -48,6 +58,9 @@ export default function Header() {
           <ChevronDown size={16} className="text-gray-500" />
         </div>
       </div>
+       {open && (
+        <AddTeamModal closeModal={() => setOpen(false)} />
+      )}
     </header>
   );
 }

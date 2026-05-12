@@ -1,7 +1,7 @@
-import { employeeColumns } from "../../components/Columns"
-import EmployeeTable from "../../components/EmployeeTable"
+import { employeeColumns } from "../../components/Columns.jsx"
+import EmployeeTable from "../../components/EmployeeTable.jsx"
 import { employees } from "../../data/employees.js"
-import Heading from "../../components/Heading"
+import Heading from "../../components/Heading.jsx"
 
 export default function Employees(){
     return(

@@ -40,7 +40,7 @@ export default function Sidebar({collapsed, setCollapsed}){
                     }
                     
                     {
-                        !collapsed && <span className="text-blue-600 font-bold text-sm">WORK MONITOR</span>
+                        !collapsed && <span className="text-[#1B48DE] font-bold text-sm">WORK MONITOR</span>
                     }
                 </div>
                 <div 

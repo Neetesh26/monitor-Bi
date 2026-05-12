@@ -3,8 +3,10 @@ import Dashboard from "./pages/Dashboard";
 import Adminlayout from "./layout/Adminlayout";
 import TimeAndAttendance from "./pages/TimeAndAttendance";
 import RealTimeInsights from "./pages/RealInsights";
-import Employees from "./pages/Employees/Employees";
-import EmployeeDetails from "./pages/Employees/EmployeeDetails";
+import Employees from "./pages/AdminEmployees/Employees";
+import EmployeeDetails from "./pages/AdminEmployees/EmployeeDetails";
+import Teams from "./pages/AdminTeams/Teams";
+import TeamDetails from "./pages/AdminTeams/TeamDetails";
 
 export default function App(){
   return(
@@ -16,6 +18,9 @@ export default function App(){
           <Route path="/attendance" element={<TimeAndAttendance/>} />
           <Route path="/employees" element={<Employees />} />
           <Route path="/employees/:id" element={<EmployeeDetails />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/teams/:teamName" element={<TeamDetails />} />
+          <Route />
         </Route>
       </Routes>
     </BrowserRouter>
