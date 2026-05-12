@@ -1,6 +1,6 @@
 import ArrowLeft from "./../../assets/employeeDetails/CaretLeft.svg?react";
 import { useNavigate } from "react-router-dom";
-export default function EmployeeDetailHeader() {
+export default function EmployeeDetailHeader({title}) {
   const navigate = useNavigate();
   return (
     <div className="flex items-center gap-4 mb-6">
@@ -23,7 +23,7 @@ export default function EmployeeDetailHeader() {
 
       {/* Title */}
       <h1 className="text-[20px] font-semibold text-[#111827]">
-        Employee Detail
+        {title}
       </h1>
     </div>
   );
