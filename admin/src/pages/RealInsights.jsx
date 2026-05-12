@@ -5,7 +5,7 @@ import TrendUp from "./../assets/dashboard/TrendUp.svg?react";
 import TrendDown from "./../assets/dashboard/TrendDown.svg?react";
 import EmployeeTable from "../components/EmployeeTable.jsx";
 import { insightsColumns } from "../components/Columns.jsx";
-import { employees } from "../data/Employees.js";
+import { employees } from "../data/employees.js";
 
 function RealTimeInsights() {
 

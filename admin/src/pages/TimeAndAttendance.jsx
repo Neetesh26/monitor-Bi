@@ -5,7 +5,7 @@ import Toolbar from '../components/Toolbar';
 import EmployeeTable from '../components/EmployeeTable';
 import { manualTimeColumns, timesheetColumns } from '../components/Columns';
 import AttendanceGrid from '../components/TimeAndAttendance/Attendance';
-import { employees } from "../data/Employees";
+import { employees } from "../data/employees.js";
 import { manualTimeData } from "../data/manualTime";
 
 function TimeAndAttendance() {

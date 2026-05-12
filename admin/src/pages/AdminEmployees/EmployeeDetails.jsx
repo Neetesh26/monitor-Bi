@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import EmployeeDetailHeader from "../../components/EmployeeDetails/EDHeader";
-import { employees } from "../../data/Employees";
+import { employees } from "../../data/employees.js";
 import EmployeeProfileCard from "../../components/EmployeeDetails/EDInfo";
 import Tabs from "../../components/Tabs";
 import { useState } from "react";
