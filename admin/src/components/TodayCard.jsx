@@ -1,6 +1,13 @@
-export default function TodayCard({title,value,total,Icon,color}) {
+export default function TodayCard({
+  title,
+  value,
+  total,
+  Icon,
+  color,
+  width="w-[357px]"
+}) {
   return (
-    <div className="w-[357px] h-[91px] rounded-2xl border border-[#D1D5E4] p-4 flex flex-col justify-between">
+    <div className={`${width} h-[91px] rounded-2xl border border-[#D1D5E4] p-4 flex flex-col justify-between`}>
       
       {/* Top Row */}
       <div className="flex items-center justify-between">

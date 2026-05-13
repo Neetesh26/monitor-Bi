@@ -31,7 +31,7 @@ export default function EmployeeDetails(){
     
     return(
         <>
-                <EmployeeDetailHeader />
+                <EmployeeDetailHeader title="Employee Detail" />
                 <EmployeeProfileCard employee={employee} />
                 <Tabs active={activeTab} setActive={setActiveTab} tabs={tabs} />            
             {

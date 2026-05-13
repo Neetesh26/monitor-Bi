@@ -1,5 +1,6 @@
 import {MapPin,Monitor} from "lucide-react";
 import {Link} from "react-router-dom";
+import { MoreVertical } from "lucide-react";
 
 function timeToMinutes(timeStr) {
   const [time, modifier] = timeStr.split(" ");
@@ -500,5 +501,124 @@ export const teamColumns = [
   {
     header: "Break Time",
     accessor: "breakTime",
+  },
+];
+
+export const projectColumns = [
+  {
+    header: "Project",
+    accessor: "project",
+    render: (row) => (
+      <Link to={`/projects/${row.project}`}>
+        <span className="font-medium text-[#1E1E1E]">
+        {row.project}
+      </span>
+      </Link>
+      
+    ),
+  },
+
+  {
+    header: "Assignees",
+    accessor: "assignees",
+  },
+
+  {
+    header: "Tasks",
+    accessor: "tasks",
+  },
+
+  {
+    header: "Total time",
+    accessor: "totalTime",
+  },
+
+  {
+    header: "Clocked Time",
+    accessor: "clockedTime",
+  },
+
+  {
+    header: "Manual Time",
+    accessor: "manualTime",
+  },
+
+  {
+    header: "Created",
+    accessor: "created",
+  },
+
+  {
+    header: "Actions",
+    render: () => (
+      <button>
+        <MoreVertical className="w-5 h-5 text-gray-500" />
+      </button>
+    ),
+  },
+];
+
+export const assignedEmployeeColumns = [
+  {
+    header: "Employee list",
+    render: (emp) => (
+      <div className="flex items-center gap-3">
+        
+        <img
+          src={emp.avatar}
+          alt={emp.name}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+
+        <div className="flex flex-col">
+          <span className="text-[#111827] font-medium">
+            {emp.name}
+          </span>
+
+          <span className="text-[#667085] text-sm">
+            #{emp.id}
+          </span>
+        </div>
+      </div>
+    ),
+  },
+
+  {
+    header: "Team",
+    accessor: "team",
+  },
+
+  {
+    header: "Total time",
+    accessor: "totalTime",
+  },
+
+  {
+    header: "Clocked Time",
+    accessor: "clockedTime",
+  },
+
+  {
+    header: "Computer Act.",
+    accessor: "computerActivity",
+  },
+
+  {
+    header: "Manual Time",
+    accessor: "manualTime",
+  },
+
+  {
+    header: "Productive",
+    accessor: "productive",
+  },
+
+  {
+    header: "Actions",
+    render: () => (
+      <button className="text-[#667085]">
+        <MoreVertical size={18} />
+      </button>
+    ),
   },
 ];
