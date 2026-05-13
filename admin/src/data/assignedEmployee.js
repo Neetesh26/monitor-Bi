@@ -1,0 +1,61 @@
+export const assignedEmployeesData = [
+  {
+    id: "00001",
+    name: "Alisha Khan",
+    avatar: "https://i.pravatar.cc/40?img=1",
+    team: "BDE",
+    totalTime: "HH:MM",
+    clockedTime: "HH:MM",
+    computerActivity: "HH:MM",
+    manualTime: "HH:MM",
+    productive: "HH:MM",
+  },
+
+  {
+    id: "00002",
+    name: "Amul Sharma",
+    avatar: "https://i.pravatar.cc/40?img=2",
+    team: "Developer",
+    totalTime: "HH:MM",
+    clockedTime: "HH:MM",
+    computerActivity: "HH:MM",
+    manualTime: "HH:MM",
+    productive: "HH:MM",
+  },
+
+  {
+    id: "00003",
+    name: "Vandana Ramchandani",
+    avatar: "https://i.pravatar.cc/40?img=3",
+    team: "Developer",
+    totalTime: "HH:MM",
+    clockedTime: "HH:MM",
+    computerActivity: "HH:MM",
+    manualTime: "HH:MM",
+    productive: "HH:MM",
+  },
+
+  {
+    id: "00005",
+    name: "Bhumika Solanki",
+    avatar: "https://i.pravatar.cc/40?img=4",
+    team: "Designer",
+    totalTime: "HH:MM",
+    clockedTime: "HH:MM",
+    computerActivity: "HH:MM",
+    manualTime: "HH:MM",
+    productive: "HH:MM",
+  },
+
+  {
+    id: "00006",
+    name: "Jaydeep Deshmukh",
+    avatar: "https://i.pravatar.cc/40?img=5",
+    team: "Developer",
+    totalTime: "HH:MM",
+    clockedTime: "HH:MM",
+    computerActivity: "HH:MM",
+    manualTime: "HH:MM",
+    productive: "HH:MM",
+  },
+];

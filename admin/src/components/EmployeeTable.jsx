@@ -6,7 +6,7 @@ export default function EmployeeTable({columns,data}) {
     <div className="w-full rounded-xl border border-[#D1D5E4] overflow-hidden">
       
       {/* Header */}
-      <div className="grid text-gray-500 text-sm px-5 py-3 gap-6"
+      <div className="grid text-gray-500 text-sm px-4 py-3 gap-6"
             style={gridStyle}>
         {columns.map((col, i) => (
           <div 

@@ -7,6 +7,8 @@ import Employees from "./pages/AdminEmployees/Employees";
 import EmployeeDetails from "./pages/AdminEmployees/EmployeeDetails";
 import Teams from "./pages/AdminTeams/Teams";
 import TeamDetails from "./pages/AdminTeams/TeamDetails";
+import Project from "./pages/project/Project";
+import ProjectDetail from "./pages/project/ProjectDetail";
 
 export default function App(){
   return(
@@ -20,6 +22,8 @@ export default function App(){
           <Route path="/employees/:id" element={<EmployeeDetails />} />
           <Route path="/teams" element={<Teams />} />
           <Route path="/teams/:teamName" element={<TeamDetails />} />
+          <Route path="/projects" element={<Project />}/>
+          <Route path="/projects/:projectname" element={<ProjectDetail />}/>
           <Route />
         </Route>
       </Routes>
