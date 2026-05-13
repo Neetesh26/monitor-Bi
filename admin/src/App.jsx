@@ -9,6 +9,7 @@ import Teams from "./pages/AdminTeams/Teams";
 import TeamDetails from "./pages/AdminTeams/TeamDetails";
 import Project from "./pages/project/Project";
 import ProjectDetail from "./pages/project/ProjectDetail";
+import Screenshot from "./pages/adminScreenshots/Adminscreenshot";
 
 export default function App(){
   return(
@@ -24,7 +25,7 @@ export default function App(){
           <Route path="/teams/:teamName" element={<TeamDetails />} />
           <Route path="/projects" element={<Project />}/>
           <Route path="/projects/:projectname" element={<ProjectDetail />}/>
-          <Route />
+          <Route path="/screenshots" element={<Screenshot/>} />
         </Route>
       </Routes>
     </BrowserRouter>
